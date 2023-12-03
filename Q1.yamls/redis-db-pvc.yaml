@@ -1,0 +1,15 @@
+---
+# Source: Blockscout/templates/redis-db-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    io.kompose.service: redis-db-claim0
+  name: redis-db-claim0
+  namespace: blockscout
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi

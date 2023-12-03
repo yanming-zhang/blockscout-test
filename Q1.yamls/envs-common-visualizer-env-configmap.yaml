@@ -1,0 +1,11 @@
+---
+# Source: Blockscout/templates/envs-common-visualizer-env-configmap.yaml
+apiVersion: v1
+data:
+  VISUALIZER__SERVER__GRPC__ENABLED: "false"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: visualizer-envs-common-visualizer-env
+  name: envs-common-visualizer-env

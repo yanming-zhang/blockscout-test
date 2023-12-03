@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: redis-db
+  name: redis-db
+{{ include "app.namespace" . | indent 2 }}
+spec:
+  replicas: {{ .Values.redis.replicas}}
+{{ include "app.strategy" . | indent 2 }}
+  selector:
+    matchLabels:
+      io.kompose.service: redis-db
+  template:
+    metadata:
+      labels:
+        io.kompose.service: redis-db
+    spec:
+      containers:
+        - name: redis-db
+          image: {{ .Values.redis.image }}
+          ports:
+            - containerPort: {{ .Values.redis.port }}
+          args:
+            - redis-server
+{{ include "redis.resources" . | indent 10 }}
+          volumeMounts:
+            - mountPath: /data
+              name: redis-db-claim0
+      restartPolicy: Always
+      volumes:
+        - name: redis-db-claim0
+          persistentVolumeClaim:
+            claimName: redis-db-claim0

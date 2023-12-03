@@ -1,0 +1,16 @@
+---
+# Source: Blockscout/templates/stats-db-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: stats-db
+  name: stats-db
+  namespace: blockscout
+spec:
+  ports:
+    - name: "5432"
+      port: 5432
+      targetPort: 5432
+  selector:
+    io.kompose.service: stats-db

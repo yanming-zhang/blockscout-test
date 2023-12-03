@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: stats-db
+  name: stats-db
+{{ include "app.namespace" . | indent 2 }}
+spec:
+  ports:
+    - name: {{ .Values.statsdb.port | quote }}
+      port: {{ .Values.statsdb.port }}
+      targetPort: {{ .Values.statsdb.port }}
+  selector:
+    io.kompose.service: stats-db

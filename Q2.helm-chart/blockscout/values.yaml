@@ -1,0 +1,230 @@
+appname: blockscout
+namespace: blockscout
+
+secret_key_base: "56NtB48ear7+wMSf0IQuWDAAazhpb31qyc7GiyspBP2vh7t5zlCsF5QDv76chXeN"
+
+backend:
+  replicas: 1
+  storage:
+    size: 100Mi
+    accessMode: ReadWriteOnce
+  image: blockscout/blockscout:latest
+  port: 4000
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+
+db:
+  name: db
+  replicas: 1
+  storage:
+    size: 100Mi
+    accessMode: ReadWriteOnce
+  image: postgres:14
+  database:
+    username: blockscout
+    password: ceWb1MeLBEeOIfk65gU8EjF8
+    db: blockscout
+  port: 5432
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+
+frontend:
+  replicas: 1
+  image: ghcr.io/blockscout/frontend:latest
+  port: 3000
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+
+redis:
+  replicas: 1
+  image: redis:alpine
+  port: 6379
+  storage:
+    size: 100Mi
+    accessMode: ReadWriteOnce
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+
+sigprovider:
+  name: sig-provider
+  replicas: 1
+  image: ghcr.io/blockscout/sig-provider:latest
+  port: 8050
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+
+statsdb:
+  replicas: 1
+  storage:
+    size: 100Mi
+    accessMode: ReadWriteOnce
+  image: postgres:14
+  database:
+    username: stats
+    password: n0uejXPl61ci6ldCuE2gQU5Y
+    db: stats
+  port: 5432
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+
+stats:
+  name: stats
+  replicas: 1
+  port: 8050
+  image: ghcr.io/blockscout/stats:latest
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+
+visualizer:
+  name: visualizer
+  replicas: 1
+  image: ghcr.io/blockscout/visualizer:latest
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+
+
+proxy:
+  name: proxy
+  replicas: 1
+  image: nginx
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+  defaultConf: |-
+    map $http_upgrade $connection_upgrade {
+
+      default upgrade;
+      ''      close;
+    }
+
+    server {
+        listen       80;
+        server_name  localhost;
+        proxy_http_version 1.1;
+
+        location ~ ^/(api|socket|sitemap.xml|auth/auth0|auth/auth0/callback|auth/logout) {
+            proxy_pass            ${BACK_PROXY_PASS};
+            proxy_http_version    1.1;
+            proxy_set_header      Host "$host";
+            proxy_set_header      X-Real-IP "$remote_addr";
+            proxy_set_header      X-Forwarded-For "$proxy_add_x_forwarded_for";
+            proxy_set_header      X-Forwarded-Proto "$scheme";
+            proxy_set_header      Upgrade "$http_upgrade";
+            proxy_set_header      Connection $connection_upgrade;
+            proxy_cache_bypass    $http_upgrade;
+        }
+        location / {
+            proxy_pass            ${FRONT_PROXY_PASS};
+            proxy_http_version    1.1;
+            proxy_set_header      Host "$host";
+            proxy_set_header      X-Real-IP "$remote_addr";
+            proxy_set_header      X-Forwarded-For "$proxy_add_x_forwarded_for";
+            proxy_set_header      X-Forwarded-Proto "$scheme";
+            proxy_set_header      Upgrade "$http_upgrade";
+            proxy_set_header      Connection $connection_upgrade;
+            proxy_cache_bypass    $http_upgrade;
+        }
+    }
+    server {
+        listen       8080;
+        server_name  localhost;
+        proxy_http_version 1.1;
+        proxy_hide_header Access-Control-Allow-Origin;
+        proxy_hide_header Access-Control-Allow-Methods;
+        add_header 'Access-Control-Allow-Origin' 'http://localhost' always;
+        add_header 'Access-Control-Allow-Credentials' 'true' always;
+        add_header 'Access-Control-Allow-Methods' 'PUT, GET, POST, OPTIONS, DELETE, PATCH' always;
+
+        location / {
+            proxy_pass            http://stats:8050/;
+            proxy_http_version    1.1;
+            proxy_set_header      Host "$host";
+            proxy_set_header      X-Real-IP "$remote_addr";
+            proxy_set_header      X-Forwarded-For "$proxy_add_x_forwarded_for";
+            proxy_set_header      X-Forwarded-Proto "$scheme";
+            proxy_set_header      Upgrade "$http_upgrade";
+            proxy_set_header      Connection $connection_upgrade;
+            proxy_cache_bypass    $http_upgrade;
+        }
+    }
+    server {
+        listen       8081;
+        server_name  localhost;
+        proxy_http_version 1.1;
+        proxy_hide_header Access-Control-Allow-Origin;
+        proxy_hide_header Access-Control-Allow-Methods;
+        add_header 'Access-Control-Allow-Origin' 'http://localhost' always;
+        add_header 'Access-Control-Allow-Credentials' 'true' always;
+        add_header 'Access-Control-Allow-Methods' 'PUT, GET, POST, OPTIONS, DELETE, PATCH' always;
+        add_header 'Access-Control-Allow-Headers' 'DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,x-csrf-token' always;
+
+        location / {
+            proxy_pass            http://visualizer:8050/;
+            proxy_http_version    1.1;
+            proxy_buffering       off;
+            proxy_set_header      Host "$host";
+            proxy_set_header      X-Real-IP "$remote_addr";
+            proxy_connect_timeout 30m;
+            proxy_read_timeout    30m;
+            proxy_send_timeout    30m;
+            proxy_set_header      X-Forwarded-For "$proxy_add_x_forwarded_for";
+            proxy_set_header      X-Forwarded-Proto "$scheme";
+            proxy_set_header      Upgrade "$http_upgrade";
+            proxy_set_header      Connection $connection_upgrade;
+            proxy_cache_bypass    $http_upgrade;
+            if ($request_method = 'OPTIONS') {
+                add_header 'Access-Control-Allow-Origin' 'http://localhost' always;
+                add_header 'Access-Control-Allow-Credentials' 'true' always;
+                add_header 'Access-Control-Allow-Methods' 'PUT, GET, POST, OPTIONS, DELETE, PATCH' always;
+                add_header 'Access-Control-Allow-Headers' 'DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,x-csrf-token' always;
+                add_header 'Access-Control-Max-Age' 1728000;
+                add_header 'Content-Type' 'text/plain charset=UTF-8';
+                add_header 'Content-Length' 0;
+                return 204;
+            }
+        }
+    }

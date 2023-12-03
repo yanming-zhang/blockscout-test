@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: visualizer
+  name: visualizer
+{{ include "app.namespace" . | indent 2 }}
+spec:
+  replicas: {{ .Values.visualizer.replicas}}
+{{ include "app.strategy" . | indent 2 }}
+  selector:
+    matchLabels:
+      io.kompose.service: visualizer
+  template:
+    metadata:
+      labels:
+        io.kompose.service: visualizer
+    spec:
+      containers:
+        - name: visualizer
+          image: {{ .Values.visualizer.image }}
+          ports:
+            - containerPort: {{ .Values.visualizer.port }}
+{{ include "visualizer.envs" . | indent 10 }}
+{{ include "visualizer.resources" . | indent 10 }}
+      restartPolicy: Always

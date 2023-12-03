@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: db
+  name: {{ .Values.db.name }}
+{{ include "app.namespace" . | indent 2 }}
+spec:
+  ports:
+    - name: {{ .Values.db.port | quote }}
+      port: {{ .Values.db.port }}
+      targetPort: {{ .Values.db.port }}
+  selector:
+    io.kompose.service: db

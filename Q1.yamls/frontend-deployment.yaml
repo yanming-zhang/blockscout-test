@@ -1,0 +1,123 @@
+---
+# Source: Blockscout/templates/frontend-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: frontend
+  name: frontend
+  namespace: blockscout
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      io.kompose.service: frontend
+  template:
+    metadata:
+      labels:
+        io.kompose.service: frontend
+    spec:
+      containers:
+        - name: frontend
+          ports:
+            - containerPort: 3000
+          image: ghcr.io/blockscout/frontend:latest
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+            requests:
+              cpu: 500m
+              memory: 1Gi
+          env:
+            - name: NEXT_PUBLIC_API_BASE_PATH
+              valueFrom:
+                configMapKeyRef:
+                  key: NEXT_PUBLIC_API_BASE_PATH
+                  name: envs-common-frontend-env
+            - name: NEXT_PUBLIC_API_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: NEXT_PUBLIC_API_HOST
+                  name: envs-common-frontend-env
+            - name: NEXT_PUBLIC_API_PROTOCOL
+              valueFrom:
+                configMapKeyRef:
+                  key: NEXT_PUBLIC_API_PROTOCOL
+                  name: envs-common-frontend-env
+            - name: NEXT_PUBLIC_API_SPEC_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: NEXT_PUBLIC_API_SPEC_URL
+                  name: envs-common-frontend-env
+            - name: NEXT_PUBLIC_API_WEBSOCKET_PROTOCOL
+              valueFrom:
+                configMapKeyRef:
+                  key: NEXT_PUBLIC_API_WEBSOCKET_PROTOCOL
+                  name: envs-common-frontend-env
+            - name: NEXT_PUBLIC_APP_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: NEXT_PUBLIC_APP_HOST
+                  name: envs-common-frontend-env
+            - name: NEXT_PUBLIC_APP_PROTOCOL
+              valueFrom:
+                configMapKeyRef:
+                  key: NEXT_PUBLIC_APP_PROTOCOL
+                  name: envs-common-frontend-env
+            - name: NEXT_PUBLIC_HOMEPAGE_CHARTS
+              valueFrom:
+                configMapKeyRef:
+                  key: NEXT_PUBLIC_HOMEPAGE_CHARTS
+                  name: envs-common-frontend-env
+            - name: NEXT_PUBLIC_IS_TESTNET
+              valueFrom:
+                configMapKeyRef:
+                  key: NEXT_PUBLIC_IS_TESTNET
+                  name: envs-common-frontend-env
+            - name: NEXT_PUBLIC_NETWORK_CURRENCY_DECIMALS
+              valueFrom:
+                configMapKeyRef:
+                  key: NEXT_PUBLIC_NETWORK_CURRENCY_DECIMALS
+                  name: envs-common-frontend-env
+            - name: NEXT_PUBLIC_NETWORK_CURRENCY_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: NEXT_PUBLIC_NETWORK_CURRENCY_NAME
+                  name: envs-common-frontend-env
+            - name: NEXT_PUBLIC_NETWORK_CURRENCY_SYMBOL
+              valueFrom:
+                configMapKeyRef:
+                  key: NEXT_PUBLIC_NETWORK_CURRENCY_SYMBOL
+                  name: envs-common-frontend-env
+            - name: NEXT_PUBLIC_NETWORK_ID
+              valueFrom:
+                configMapKeyRef:
+                  key: NEXT_PUBLIC_NETWORK_ID
+                  name: envs-common-frontend-env
+            - name: NEXT_PUBLIC_NETWORK_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: NEXT_PUBLIC_NETWORK_NAME
+                  name: envs-common-frontend-env
+            - name: NEXT_PUBLIC_NETWORK_SHORT_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: NEXT_PUBLIC_NETWORK_SHORT_NAME
+                  name: envs-common-frontend-env
+            - name: NEXT_PUBLIC_STATS_API_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: NEXT_PUBLIC_STATS_API_HOST
+                  name: envs-common-frontend-env
+            - name: NEXT_PUBLIC_VISUALIZE_API_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: NEXT_PUBLIC_VISUALIZE_API_HOST
+                  name: envs-common-frontend-env
+      restartPolicy: Always

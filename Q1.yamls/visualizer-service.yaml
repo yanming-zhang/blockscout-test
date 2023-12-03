@@ -1,0 +1,16 @@
+---
+# Source: Blockscout/templates/visualizer-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: visualizer
+  name: visualizer
+  namespace: blockscout
+spec:
+  ports:
+    - name: 
+      port: 
+      targetPort: 
+  selector:
+    io.kompose.service: visualizer

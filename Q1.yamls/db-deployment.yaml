@@ -1,0 +1,62 @@
+---
+# Source: Blockscout/templates/db-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: db
+  name: db
+  namespace: blockscout
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      io.kompose.service: db
+  template:
+    metadata:
+      labels:
+        io.kompose.service: db
+    spec:
+      containers:
+        - args:
+            - postgres
+            - -c
+            - max_connections=200
+          image: postgres:14
+          name: db
+          ports:
+            - containerPort: 5432
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+            requests:
+              cpu: 500m
+              memory: 1Gi
+          env:
+            - name: POSTGRES_DB
+              value: blockscout
+            - name: POSTGRES_PASSWORD
+              value: ceWb1MeLBEeOIfk65gU8EjF8
+            - name: POSTGRES_USER
+              value: blockscout
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready -U blockscout -d blockscout
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: db-claim0
+      restartPolicy: Always
+      volumes:
+        - name: db-claim0
+          persistentVolumeClaim:
+            claimName: db-claim0

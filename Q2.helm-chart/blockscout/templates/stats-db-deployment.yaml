@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: stats-db
+  name: stats-db
+{{ include "app.namespace" . | indent 2 }}
+spec:
+  replicas: {{ .Values.statsdb.replicas}}
+{{ include "app.strategy" . | indent 2 }}
+  selector:
+    matchLabels:
+      io.kompose.service: stats-db
+  template:
+    metadata:
+      labels:
+        io.kompose.service: stats-db
+    spec:
+      containers:
+        - args:
+            - postgres
+            - -c
+            - max_connections=200
+          image: {{ .Values.statsdb.image }}
+          name: stats-postgres
+          ports:
+            - containerPort: {{ .Values.statsdb.port }}
+{{ include "statsdb.resources" . | indent 10 }}
+{{ include "statsdb.envs" . | indent 10 }}
+{{ include "statsdb.probes" . | indent 10 }}
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: stats-db-claim0
+      restartPolicy: Always
+      volumes:
+        - name: stats-db-claim0
+          persistentVolumeClaim:
+            claimName: stats-db-claim0

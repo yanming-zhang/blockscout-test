@@ -1,0 +1,128 @@
+---
+# Source: Blockscout/templates/stats-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: stats
+  name: stats
+  namespace: blockscout
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      io.kompose.service: stats
+  template:
+    metadata:
+      labels:
+        io.kompose.service: stats
+    spec:
+      containers:
+        - image: ghcr.io/blockscout/stats:latest
+          name: stats
+          ports:
+            - containerPort: 8050
+          env:
+            - name: STATS__BLOCKSCOUT_DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: STATS__BLOCKSCOUT_DB_URL
+                  name: envs-common-stats-env
+            - name: STATS__CREATE_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  key: STATS__CREATE_DATABASE
+                  name: envs-common-stats-env
+            - name: STATS__DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: STATS__DB_URL
+                  name: envs-common-stats-env
+            - name: STATS__DEFAULT_SCHEDULE
+              valueFrom:
+                configMapKeyRef:
+                  key: STATS__DEFAULT_SCHEDULE
+                  name: envs-common-stats-env
+            - name: STATS__FORCE_UPDATE_ON_START
+              valueFrom:
+                configMapKeyRef:
+                  key: STATS__FORCE_UPDATE_ON_START
+                  name: envs-common-stats-env
+            - name: STATS__JAEGER__AGENT_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  key: STATS__JAEGER__AGENT_ENDPOINT
+                  name: envs-common-stats-env
+            - name: STATS__JAEGER__ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  key: STATS__JAEGER__ENABLED
+                  name: envs-common-stats-env
+            - name: STATS__METRICS__ADDR
+              valueFrom:
+                configMapKeyRef:
+                  key: STATS__METRICS__ADDR
+                  name: envs-common-stats-env
+            - name: STATS__METRICS__ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  key: STATS__METRICS__ENABLED
+                  name: envs-common-stats-env
+            - name: STATS__METRICS__ROUTE
+              valueFrom:
+                configMapKeyRef:
+                  key: STATS__METRICS__ROUTE
+                  name: envs-common-stats-env
+            - name: STATS__RUN_MIGRATIONS
+              valueFrom:
+                configMapKeyRef:
+                  key: STATS__RUN_MIGRATIONS
+                  name: envs-common-stats-env
+            - name: STATS__SERVER__GRPC__ADDR
+              valueFrom:
+                configMapKeyRef:
+                  key: STATS__SERVER__GRPC__ADDR
+                  name: envs-common-stats-env
+            - name: STATS__SERVER__GRPC__ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  key: STATS__SERVER__GRPC__ENABLED
+                  name: envs-common-stats-env
+            - name: STATS__SERVER__HTTP__ADDR
+              valueFrom:
+                configMapKeyRef:
+                  key: STATS__SERVER__HTTP__ADDR
+                  name: envs-common-stats-env
+            - name: STATS__SERVER__HTTP__ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  key: STATS__SERVER__HTTP__ENABLED
+                  name: envs-common-stats-env
+            - name: STATS__SERVER__HTTP__MAX_BODY_SIZE
+              valueFrom:
+                configMapKeyRef:
+                  key: STATS__SERVER__HTTP__MAX_BODY_SIZE
+                  name: envs-common-stats-env
+            - name: STATS__TRACING__ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  key: STATS__TRACING__ENABLED
+                  name: envs-common-stats-env
+            - name: STATS__TRACING__FORMAT
+              valueFrom:
+                configMapKeyRef:
+                  key: STATS__TRACING__FORMAT
+                  name: envs-common-stats-env
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+            requests:
+              cpu: 500m
+              memory: 1Gi
+      restartPolicy: Always

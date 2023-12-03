@@ -1,0 +1,46 @@
+---
+# Source: Blockscout/templates/redis-db-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: redis-db
+  name: redis-db
+  namespace: blockscout
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      io.kompose.service: redis-db
+  template:
+    metadata:
+      labels:
+        io.kompose.service: redis-db
+    spec:
+      containers:
+        - name: redis-db
+          image: redis:alpine
+          ports:
+            - containerPort: 6379
+          args:
+            - redis-server
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+            requests:
+              cpu: 500m
+              memory: 1Gi
+          volumeMounts:
+            - mountPath: /data
+              name: redis-db-claim0
+      restartPolicy: Always
+      volumes:
+        - name: redis-db-claim0
+          persistentVolumeClaim:
+            claimName: redis-db-claim0

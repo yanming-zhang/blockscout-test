@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: backend
+  name: backend
+{{ include "app.namespace" . | indent 2 }}
+spec:
+  replicas: {{ .Values.backend.replicas}}
+{{ include "app.strategy" . | indent 2 }}
+  selector:
+    matchLabels:
+      io.kompose.service: backend
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: backend
+    spec:
+      containers:
+        - name: backend
+          image: {{ .Values.backend.image }}
+          ports:
+            - containerPort: {{ .Values.backend.port }}
+          args:
+            - sh
+            - -c
+            - bin/blockscout eval "Elixir.Explorer.ReleaseTasks.create_and_migrate()" && bin/blockscout start
+{{ include "backend.env" . | indent 10 }}
+{{ include "backend.resources" . | indent 10 }}
+          volumeMounts:
+            - mountPath: /app/logs/
+              name: backend-claim0
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 300
+      volumes:
+        - name: backend-claim0
+          persistentVolumeClaim:
+            claimName: backend-claim0

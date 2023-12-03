@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: redis-db
+  name: redis-db
+{{ include "app.namespace" . | indent 2 }}
+spec:
+  ports:
+    - name: {{ .Values.redis.port | quote }}
+      port: {{ .Values.redis.port }}
+      targetPort: {{ .Values.redis.port }}
+  selector:
+    io.kompose.service: redis-db
+

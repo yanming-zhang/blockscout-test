@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: stats
+  name: stats
+{{ include "app.namespace" . | indent 2 }}
+spec:
+  replicas: {{ .Values.stats.replicas}}
+{{ include "app.strategy" . | indent 2 }}
+  selector:
+    matchLabels:
+      io.kompose.service: stats
+  template:
+    metadata:
+      labels:
+        io.kompose.service: stats
+    spec:
+      containers:
+        - image: {{ .Values.stats.image}}
+          name: stats
+          ports:
+            - containerPort: {{ .Values.stats.port }}
+{{ include "stats.envs" . | indent 10 }}
+{{ include "stats.resources" . | indent 10 }}
+      restartPolicy: Always

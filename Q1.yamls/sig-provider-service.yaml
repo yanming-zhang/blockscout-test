@@ -1,0 +1,16 @@
+---
+# Source: Blockscout/templates/sig-provider-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: sig-provider
+  name: sig-provider
+  namespace: blockscout
+spec:
+  ports:
+    - name: "8050"
+      port: 8050
+      targetPort: 8050
+  selector:
+    io.kompose.service: sig-provider

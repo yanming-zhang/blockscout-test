@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: visualizer
+  name: {{ .Values.visualizer.name }}
+{{ include "app.namespace" . | indent 2 }}
+spec:
+  ports:
+    - name: {{ .Values.visualizer.port | quote }}
+      port: {{ .Values.visualizer.port }}
+      targetPort: {{ .Values.visualizer.port }}
+  selector:
+    io.kompose.service: visualizer

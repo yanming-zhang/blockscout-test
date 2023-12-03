@@ -1,0 +1,16 @@
+---
+# Source: Blockscout/templates/stats-db-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: stats-db-claim0
+  name: stats-db-claim0
+  namespace: blockscout
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi

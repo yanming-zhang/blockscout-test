@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: sig-provider
+  name: sig-provider
+{{ include "app.namespace" . | indent 2 }}
+spec:
+  replicas: {{ .Values.sigprovider.replicas }}
+{{ include "app.strategy" . | indent 2 }}
+  selector:
+    matchLabels:
+      io.kompose.service: sig-provider
+  template:
+    metadata:
+      labels:
+        io.kompose.service: sig-provider
+    spec:
+      containers:
+        - image: {{ .Values.sigprovider.image }}
+          name: sig-provider
+          ports:
+            - containerPort: {{ .Values.sigprovider.port }}
+{{ include "sigprovider.resources" . | indent 10 }}
+      restartPolicy: Always

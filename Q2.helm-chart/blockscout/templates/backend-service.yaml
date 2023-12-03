@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: backend
+  name: backend
+{{ include "app.namespace" . | indent 2 }}
+spec:
+  ports:
+    - name: {{ .Values.backend.port | quote }}
+      port: {{ .Values.backend.port }}
+      targetPort: {{ .Values.backend.port }}
+  selector:
+    io.kompose.service: backend
+

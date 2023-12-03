@@ -1,0 +1,5 @@
+apiVersion: v2
+appVersion: "5.3.2"
+description: A Helm chart for Kubernetes Blockscout
+name: Blockscout
+version: 0.1.0
